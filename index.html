@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="styles.css">
+    <title>AJAX</title>
+</head>
+<body onload="onLoad()">
+    <div id="container">
+        <div id="btn-container">
+            <div class="btn-group">
+                <button id="btn-new-country" class="btn btn-primary btn-md center-block" onclick=getNewCountry()>New country</button>
+                <button id="btn-hint" class="btn btn-warning btn-md center-block" onclick=getHint()>Hint</button>
+                <button id="btn-reveal" class="btn btn-success btn-md center-block" onclick=reveal()>Reveal</button>
+            </div>
+        </div>
+        <div id="feed"></div>
+        
+
+</div><!-- container end-->
+    
+
+
+    
+    <script>
+        let counter = 0
+
+        function onLoad() {
+            let xhr = new XMLHttpRequest()
+            xhr.open('GET', 'https://restcountries.com/v3.1/all', true)
+            xhr.onload = function()  {
+                if  (xhr.status == 200) {
+                    console.log("success")
+                    let countries = JSON.parse(this.response)
+                    console.log(countries)
+                    
+                    //creating divs and setting ID's
+                    const card = document.createElement('div')
+                    card.setAttribute("id", "card")
+                    card.setAttribute("class", "well")
+                    const countryText  = document.createElement('div')
+                    countryText.setAttribute("id", "text")
+                    countryText.setAttribute("class", "h4 text-dark text-center")
+                    countryText.style.display = "none"
+                    const flag =  document.createElement('img')
+                    flag.setAttribute("id", "flag")
+                    const regionText =  document.createElement('div')
+                    regionText.setAttribute("id", "textRegion")
+                    regionText.setAttribute("class", "h5 text-dark")
+                    regionText.style.display = "none"
+                    const subRegionText =  document.createElement('div')
+                    subRegionText.setAttribute("id", "textSubregion")
+                    subRegionText.setAttribute("class", "h5 text-dark")
+                    subRegionText.style.display = "none"
+                    const coatOfArms =  document.createElement('img')
+                    coatOfArms.setAttribute("id", "coatOfArms")
+                    coatOfArms.style.display = "none"
+
+                        
+                    //Creating random number between 0 and 250
+                    const randomCountryNumber = Math.floor(Math.random() * (countries.length+1))
+                    //Populating text from JSON randomCountry name and capital with flag
+                    countryText.innerHTML  = countries[randomCountryNumber].name.common
+                    countryText.innerHTML += "<br>" + countries[randomCountryNumber].capital
+                    flag.src  = countries[randomCountryNumber].flags.svg
+                    regionText.innerHTML  = countries[randomCountryNumber].region
+                    subRegionText.innerHTML  = countries[randomCountryNumber].subregion
+                    coatOfArms.src  = countries[randomCountryNumber].coatOfArms.svg
+                    
+                    flag.style.width =  "150px"
+                    coatOfArms.style.width =  "150px"
+                    //countryImage.style.height =  "30%"
+                    //appending elements to card then to #feed
+                    card.append(countryText, flag, regionText, subRegionText, coatOfArms)
+                    document.getElementById('feed').appendChild(card)
+                }
+            }
+            xhr.send()
+        }
+
+        function getNewCountry() {
+            counter = 0;
+            console.log(counter)
+            let xhr = new XMLHttpRequest()
+
+
+            const card  = document.getElementById('question')
+            const countryText = document.getElementById('text')
+            const regionText  = document.getElementById('textRegion')
+            const subRegionText  = document.getElementById('textSubregion')
+            const coatOfArms  = document.getElementById('coatOfArms')
+
+            document.getElementById("btn-reveal").style.display = "block"
+            document.getElementById("btn-hint").style.display = "block"
+            countryText.style.display = "none"
+            regionText.style.display = "none"
+            subRegionText.style.display = "none"
+            coatOfArms.style.display = "none"
+
+            xhr.open('GET', 'https://restcountries.com/v3.1/all', true)
+            xhr.onload = function()  {
+                if  (xhr.status == 200) {
+                    console.log("success")
+                    let countries = JSON.parse(this.response)
+                    console.log(countries.length)
+                    const randomCountryNumber = Math.floor(Math.random() * (251))
+                    const flag =  document.getElementById('flag')
+                    flag.src  = countries[randomCountryNumber].flags.svg
+
+                    coatOfArms.src  = countries[randomCountryNumber].coatOfArms.svg
+                    countryText.innerHTML  = countries[randomCountryNumber].name.common
+                    countryText.innerHTML += "<br>" + countries[randomCountryNumber].capital
+                    regionText.innerHTML  = countries[randomCountryNumber].region
+                    subRegionText.innerHTML  = countries[randomCountryNumber].subregion
+
+                }
+            }
+            xhr.send()
+        }
+
+
+        function getHint() {
+            document.getElementById("textRegion").style.display = "block"
+            document.getElementById("btn-hint").textContent = "More hints"
+            if (counter == 1) {
+                document.getElementById("textSubregion").style.display = "block"
+            }
+            if (counter == 2) {
+                document.getElementById("coatOfArms").style.display = "block"
+                document.getElementById("btn-hint").style.display = "none"
+            }
+            counter++
+        }
+        
+        function reveal() {
+            document.getElementById("text").style.display = "block"
+            document.getElementById("btn-reveal").style.display = "none"
+        }
+
+    </script>
+</body>
+</html>

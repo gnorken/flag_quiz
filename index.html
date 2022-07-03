@@ -4,31 +4,58 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
     <link rel="stylesheet" type="text/css" href="styles.css">
-    <title>AJAX</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300&family=Trispace&family=Ubuntu:wght@300&display=swap" rel="stylesheet">
+    <title>Flag Quiz</title>
 </head>
 <body onload="onLoad()">
     <div id="container">
-        <div id="btn-container">
-            <div class="btn-group">
-                <button id="btn-new-country" class="btn btn-primary btn-md center-block" onclick=getNewCountry()>New country</button>
-                <button id="btn-hint" class="btn btn-warning btn-md center-block" onclick=getHint()>Hint</button>
-                <button id="btn-reveal" class="btn btn-success btn-md center-block" onclick=reveal()>Reveal</button>
-            </div>
-        </div>
-        <div id="feed"></div>
-        
+        <div id="game">
+            <div id="points">3 points you win, -3 points you lose</div>
 
-</div><!-- container end-->
-    
-
-
+            <div id="btn-group" class="btn-group">
+                <div id="right-or-wrong"></div>
+            <!--     <button id="btn-new-country" class="btn btn-success btn-md" onclick=getNewCountry()>New country</button>-->
+                    <button id="btn-hint" class="btn btn-info btn-md" onclick=getHint()>Hint</button>
+                    <button id="btn-reveal" class="btn btn-danger btn-md" onclick=checkAnswer()>Reveal</button>
+            </div><!-- btn-group end-->
+                <input type="text" id="guess" class="form-control" placeholder="Country">
+                <button id="btn-submit" class="btn btn-primary" onclick=checkAnswer()>Guess</button>
+                <div id="feed" class="card"></div>
+        </div><!-- game end-->
+            <div id="result" class="card">
+                <div id="win" class="card-body" style="display:none;">
+                    <p>Dette gikk jo bra! <br> Du kan sakene dine, <br> Onkel Reisende Mac!</p>
+                     <img src="sivert_win_small.jpeg">
+                     <div>
+                        <button id="try-again-win" class="btn btn-primary" onclick=location.reload()>Try Again</button>
+                  </div>
+                </div>
+                <div id="lose" class="card-body" style="display:none;">
+                    <p>Uff da! <br> Kanskje du må ringe  <br> en venn neste gang</p>
+                    <img src="sivert_lose_small.jpeg">
+                    <div>
+                        <button id="try-again-lose"class="btn btn-primary" onclick=location.reload()>Try Again</button>
+                  </div>
+                </div>
+            </div><!--Result end-->
+    </div>
+</body><!-- container end-->
     
     <script>
         let counter = 0
+        let points = 0
+        let state = 0
+        let correctCountry = ""
+        let correctCapital = ""
 
         function onLoad() {
+            document.getElementById("guess").focus();
             let xhr = new XMLHttpRequest()
             xhr.open('GET', 'https://restcountries.com/v3.1/all', true)
             xhr.onload = function()  {
@@ -40,31 +67,32 @@
                     //creating divs and setting ID's
                     const card = document.createElement('div')
                     card.setAttribute("id", "card")
-                    card.setAttribute("class", "well")
+                    card.setAttribute("class", "card-body bg-light")
                     const countryText  = document.createElement('div')
-                    countryText.setAttribute("id", "text")
-                    countryText.setAttribute("class", "h4 text-dark text-center")
+                    countryText.setAttribute("id", "textCountryCapitial")
+                    countryText.setAttribute("class", "h4 text-dark text-center card-body")
                     countryText.style.display = "none"
                     const flag =  document.createElement('img')
                     flag.setAttribute("id", "flag")
                     const regionText =  document.createElement('div')
                     regionText.setAttribute("id", "textRegion")
-                    regionText.setAttribute("class", "h5 text-dark")
+                    regionText.setAttribute("class", "card-text")
                     regionText.style.display = "none"
                     const subRegionText =  document.createElement('div')
                     subRegionText.setAttribute("id", "textSubregion")
-                    subRegionText.setAttribute("class", "h5 text-dark")
+                    subRegionText.setAttribute("class", "card-text")
                     subRegionText.style.display = "none"
                     const coatOfArms =  document.createElement('img')
                     coatOfArms.setAttribute("id", "coatOfArms")
                     coatOfArms.style.display = "none"
-
                         
                     //Creating random number between 0 and 250
                     const randomCountryNumber = Math.floor(Math.random() * (countries.length+1))
                     //Populating text from JSON randomCountry name and capital with flag
-                    countryText.innerHTML  = countries[randomCountryNumber].name.common
-                    countryText.innerHTML += "<br>" + countries[randomCountryNumber].capital
+                    correctCountry = countries[randomCountryNumber].name.common
+                    correctCapital = countries[randomCountryNumber].capital
+                    countryText.innerHTML  = correctCountry
+                    countryText.innerHTML += "<br>" + correctCapital
                     flag.src  = countries[randomCountryNumber].flags.svg
                     regionText.innerHTML  = countries[randomCountryNumber].region
                     subRegionText.innerHTML  = countries[randomCountryNumber].subregion
@@ -72,7 +100,7 @@
                     
                     flag.style.width =  "150px"
                     coatOfArms.style.width =  "150px"
-                    //countryImage.style.height =  "30%"
+                    
                     //appending elements to card then to #feed
                     card.append(countryText, flag, regionText, subRegionText, coatOfArms)
                     document.getElementById('feed').appendChild(card)
@@ -82,17 +110,24 @@
         }
 
         function getNewCountry() {
+            const flag = document.getElementById('flag')
+            flag.src = "loading.svg"
+
+            changeToGuess()
+            document.getElementById("guess").focus()
+            document.getElementById("guess").value = ""
             counter = 0;
             console.log(counter)
             let xhr = new XMLHttpRequest()
 
-
+            document.getElementById("btn-hint").textContent = "Hint"
             const card  = document.getElementById('question')
-            const countryText = document.getElementById('text')
+            const countryText = document.getElementById('textCountryCapitial')
             const regionText  = document.getElementById('textRegion')
             const subRegionText  = document.getElementById('textSubregion')
             const coatOfArms  = document.getElementById('coatOfArms')
 
+            document.getElementById("right-or-wrong").style.display = "none"
             document.getElementById("btn-reveal").style.display = "block"
             document.getElementById("btn-hint").style.display = "block"
             countryText.style.display = "none"
@@ -107,15 +142,15 @@
                     let countries = JSON.parse(this.response)
                     console.log(countries.length)
                     const randomCountryNumber = Math.floor(Math.random() * (251))
-                    const flag =  document.getElementById('flag')
                     flag.src  = countries[randomCountryNumber].flags.svg
 
                     coatOfArms.src  = countries[randomCountryNumber].coatOfArms.svg
-                    countryText.innerHTML  = countries[randomCountryNumber].name.common
-                    countryText.innerHTML += "<br>" + countries[randomCountryNumber].capital
+                    correctCountry = countries[randomCountryNumber].name.common
+                    correctCapital = countries[randomCountryNumber].capital
+                    countryText.innerHTML  = correctCountry
+                    countryText.innerHTML += "<br>" + correctCapital
                     regionText.innerHTML  = countries[randomCountryNumber].region
                     subRegionText.innerHTML  = countries[randomCountryNumber].subregion
-
                 }
             }
             xhr.send()
@@ -135,9 +170,83 @@
             counter++
         }
         
-        function reveal() {
-            document.getElementById("text").style.display = "block"
+
+
+        function changeToNewCountry() {
+            let buttonChange =  document.getElementById("btn-submit")
+            buttonChange.textContent = "New Country"
+            buttonChange.setAttribute("id", "btn-new")
+            buttonChange.setAttribute("onclick", "getNewCountry()")
+            state = 1
+            //console.log("changeToNewCountry()")
+        }
+
+
+        function changeToGuess() {
+            let buttonChange =  document.getElementById("btn-new")
+            buttonChange.textContent = "Guess"
+            buttonChange.setAttribute("id", "btn-submit")
+            buttonChange.setAttribute("onclick", "checkAnswer()")
+            state = 0
+            //console.log("changeToGuess()")
+        }
+
+        function checkAnswer() {
+            document.getElementById("textCountryCapitial").style.display = "block"
+            document.getElementById("textRegion").style.display = "block"
+            document.getElementById("textSubregion").style.display = "block"
+            document.getElementById("coatOfArms").style.display = "block"
             document.getElementById("btn-reveal").style.display = "none"
+            document.getElementById("btn-hint").style.display = "none"
+            
+            if (state === 0) { changeToNewCountry() } else { changeToGuess() }
+          
+            console.log(state)
+            const guess = document.getElementById("guess").value
+            console.log(`correctCountry: ${correctCountry} guess: ${guess}`)
+            if (correctCountry.toUpperCase() == guess.toUpperCase()) {
+                //console.log("correct!")
+                points++
+                document.getElementById("points").textContent = `${points} points`
+                document.getElementById("right-or-wrong").textContent = "✅"
+                document.getElementById("right-or-wrong").style.display = "block"
+            } else {
+                //console.log("wrong!")
+                points--
+                document.getElementById("points").textContent = `${points} points`
+                document.getElementById("right-or-wrong").textContent = "❌"
+                document.getElementById("right-or-wrong").style.display = "block"
+
+            }
+            //document.getElementById("btn-new").focus()
+            checkWinLose()
+        }
+
+        document.getElementById("guess")
+            .addEventListener("keyup", function(event) {
+                
+            event.preventDefault()
+            if (event.keyCode === 13) {
+                
+                if (state === 0) { checkAnswer(); console.log("checking answer()")} 
+                
+                else if (state === 1) { getNewCountry(); console.log("getNewCountry()") }
+                
+                
+            }
+        })
+
+        function checkWinLose() {
+            if (points == 2) {
+                document.getElementById("win").style.display = "block"
+                document.getElementById("game").style.display = "none"
+                document.getElementById("try-again-win").focus()
+            }
+            else if (points == -2) {
+                document.getElementById("lose").style.display = "block"
+                document.getElementById("game").style.display = "none"
+                document.getElementById("try-again-lose").focus()
+            }
         }
 
     </script>

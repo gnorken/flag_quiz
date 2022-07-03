@@ -24,7 +24,7 @@
                     <button id="btn-hint" class="btn btn-info btn-md" onclick=getHint()>Hint</button>
                     <button id="btn-reveal" class="btn btn-danger btn-md" onclick=checkAnswer()>Reveal</button>
             </div><!-- btn-group end-->
-                <input type="text" id="guess" class="form-control" placeholder="Country">
+                <input type="text" id="guess" class="form-control" placeholder="Country or capitial">
                 <button id="btn-submit" class="btn btn-primary" onclick=checkAnswer()>Guess</button>
                 <div id="feed" class="card"></div>
         </div><!-- game end-->
@@ -37,7 +37,7 @@
                   </div>
                 </div>
                 <div id="lose" class="card-body" style="display:none;">
-                    <p>Uff da! <br> Kanskje du må ringe  <br> en venn neste gang</p>
+                     <p>Uff da! <br> Kanskje du må ringe  <br> en venn neste gang</p>
                     <img src="sivert_lose_small.jpeg">
                     <div>
                         <button id="try-again-lose"class="btn btn-primary" onclick=location.reload()>Try Again</button>
@@ -90,7 +90,7 @@
                     const randomCountryNumber = Math.floor(Math.random() * (countries.length+1))
                     //Populating text from JSON randomCountry name and capital with flag
                     correctCountry = countries[randomCountryNumber].name.common
-                    correctCapital = countries[randomCountryNumber].capital
+                    correctCapital = countries[randomCountryNumber].capital[0]
                     countryText.innerHTML  = correctCountry
                     countryText.innerHTML += "<br>" + correctCapital
                     flag.src  = countries[randomCountryNumber].flags.svg
@@ -146,7 +146,8 @@
 
                     coatOfArms.src  = countries[randomCountryNumber].coatOfArms.svg
                     correctCountry = countries[randomCountryNumber].name.common
-                    correctCapital = countries[randomCountryNumber].capital
+                    correctCapital = countries[randomCountryNumber].capital[0]
+
                     countryText.innerHTML  = correctCountry
                     countryText.innerHTML += "<br>" + correctCapital
                     regionText.innerHTML  = countries[randomCountryNumber].region
@@ -203,8 +204,13 @@
           
             console.log(state)
             const guess = document.getElementById("guess").value
-            console.log(`correctCountry: ${correctCountry} guess: ${guess}`)
-            if (correctCountry.toUpperCase() == guess.toUpperCase()) {
+            console.log(`
+                correctCountry: ${correctCountry}
+                correctCapital: ${correctCapital}
+                guess: ${guess}`)
+
+            if (correctCountry.toUpperCase() == guess.toUpperCase() ||
+                correctCapital.toUpperCase() == guess.toUpperCase()) {
                 //console.log("correct!")
                 points++
                 document.getElementById("points").textContent = `${points} points`
@@ -237,12 +243,12 @@
         })
 
         function checkWinLose() {
-            if (points == 2) {
+            if (points == 3) {
                 document.getElementById("win").style.display = "block"
                 document.getElementById("game").style.display = "none"
                 document.getElementById("try-again-win").focus()
             }
-            else if (points == -2) {
+            else if (points == -3) {
                 document.getElementById("lose").style.display = "block"
                 document.getElementById("game").style.display = "none"
                 document.getElementById("try-again-lose").focus()
